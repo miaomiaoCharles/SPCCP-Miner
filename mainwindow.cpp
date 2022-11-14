@@ -12,14 +12,18 @@ vector<SpatioNode> allInstance; //时空模式专用，保存所有拥堵实例
 vector<Road> allRoad; //时空模式专用，保存所有道路。
 map<string, vector<string>> roadNeighbor ;//存储道路临近关系
 map<SpatioNode*, SpatioNode*> insNeighborMap;
-bool checkNeighbor(SpatioNode node1, SpatioNode node2, int timeSpan, int t_threshold){
-      for(int i = 0; i < roadNeighbor[node1.roadName()].size(); i++){
-          if(roadNeighbor[node1.roadName()][i] == node2.roadName() ){
-              if(abs(node1.getTimeSpan()-node2.getTimeSpan()) * timeSpan <= t_threshold){
-                   return true;
-               }
-          }
-      }
+bool checkNeighbor(SpatioNode node1, SpatioNode node2, int timeSpan, int t_threshold){;
+    string roadName1 = node1.roadName();
+    string roadName2 = node2.roadName();
+//    auto it = find(roadNeighbor[roadName1].begin(),roadNeighbor[roadName1].end(),roadName2);
+    vector<string> findArea = roadNeighbor[roadName1];
+    for(auto str: findArea){
+        if(str == roadName2){
+            if(abs(node1.getTimeSpan()-node2.getTimeSpan()) * timeSpan <= t_threshold){
+                return true;
+            }
+        }
+    }
     return false;
 }
 struct Table
@@ -162,6 +166,7 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
     for(i = 0; i < inputData.size(); i++){
         if(inputCheck(i)) break;
         Road r(inputData[i][0]);
+        if(inputData[i].size() <= 1) roadNeighbor.insert({inputData[i][0], {}});
         for(int j = 1; j < inputData[i].size(); j++){
             r._neighbor.push_back(inputData[i][j]);
             roadNeighbor[inputData[i][0]].push_back(inputData[i][j]);
