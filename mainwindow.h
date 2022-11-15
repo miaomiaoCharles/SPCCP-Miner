@@ -3,7 +3,6 @@
 #include "spationode.h"
 #include "write.h"
 #include "road.h"
-#include "widget.h"
 #include <QIcon>
 #include <QFont>
 #include <QTextBrowser>
@@ -23,7 +22,6 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    static widget* mymap;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();

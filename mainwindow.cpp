@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
-#include "widget.h"
 using namespace std;
 
 vector< set <string> > algorithm(int timeSpan = 2, double t_threshold = 2, double pi_threshold = 0.5);
@@ -12,17 +11,15 @@ vector<SpatioNode> allInstance; //时空模式专用，保存所有拥堵实例
 vector<Road> allRoad; //时空模式专用，保存所有道路。
 map<string, vector<string>> roadNeighbor ;//存储道路临近关系
 map<SpatioNode*, SpatioNode*> insNeighborMap;
-bool checkNeighbor(SpatioNode node1, SpatioNode node2, int timeSpan, int t_threshold){;
+bool checkNeighbor(SpatioNode node1, SpatioNode node2, int timeSpan, int t_threshold){
+//    cout << node1.getInsName() << " " << node2.getInsName() << endl;
     string roadName1 = node1.roadName();
     string roadName2 = node2.roadName();
-//    auto it = find(roadNeighbor[roadName1].begin(),roadNeighbor[roadName1].end(),roadName2);
-    vector<string> findArea = roadNeighbor[roadName1];
-    for(auto str: findArea){
-        if(str == roadName2){
-            if(abs(node1.getTimeSpan()-node2.getTimeSpan()) * timeSpan <= t_threshold){
-                return true;
+    auto it = find(roadNeighbor[roadName1].begin(),roadNeighbor[roadName1].end(),roadName2);
+    if(it != roadNeighbor[roadName1].end()){
+           if(abs(node1.getTimeSpan()-node2.getTimeSpan()) * timeSpan <= t_threshold){
+                    return true;
             }
-        }
     }
     return false;
 }
@@ -88,6 +85,20 @@ bool inputCheck(int i){
     return false;
 }
 
+void trim(string& bufStr){    //该函数用于数据清洗时去除前后多余空格
+    int loc = bufStr.find_first_not_of(' ');
+    if(loc != -1){
+        bufStr = bufStr.substr(loc, bufStr.size()-loc);
+    }
+    loc = bufStr.find_last_not_of(' ');
+    if(loc != -1){
+        bufStr = bufStr.substr(0, loc+1);
+    }
+    loc = bufStr.find_last_not_of('\n');
+    if(loc != -1){
+        bufStr = bufStr.substr(0, loc+1);
+    }
+}
 
 
 
@@ -165,9 +176,11 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
     int i = 0;
     for(i = 0; i < inputData.size(); i++){
         if(inputCheck(i)) break;
+        trim(inputData[i][0]);
         Road r(inputData[i][0]);
         if(inputData[i].size() <= 1) roadNeighbor.insert({inputData[i][0], {}});
         for(int j = 1; j < inputData[i].size(); j++){
+            trim(inputData[i][j]);
             r._neighbor.push_back(inputData[i][j]);
             roadNeighbor[inputData[i][0]].push_back(inputData[i][j]);
         }
