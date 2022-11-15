@@ -228,6 +228,7 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
             Table t;
             t._str = strSet;
             t._size = strSet.size();
+            tableMap[strSet] = t;
         }
         set<SpatioNode> tempSet;
         tempSet.insert(*(it->first));
@@ -238,28 +239,30 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
     for(auto it = tableMap.begin(); it != tableMap.end(); it++){
         if(checkPrivalent(it->second, pi_threshold)){
             ans.push_back(it->first);
-            prevalentTable.push_back(it->second);
+            Table& sucessTable = it->second;
+            prevalentTable.push_back(sucessTable);
         }
     }//size-2 complete
     bool flag;
-//    while(1){
-//        flag = false;
-//        for(int i = 0; i < prevalentTable.size()-1; i++){
-//            Table& table1 = prevalentTable[i];
-//            for(int j = i+1; j < prevalentTable.size(); j++){
-//                Table& table2 = prevalentTable[j];
-//                if(*(table1._str.begin()) == *(table2._str.begin())){
-//                    Table newTable = mergeTable(table1, table2);
-//                    if(checkPrivalent(newTable, pi_threshold)){
-//                        flag = true;
-//                        ans.push_back(newTable._str);
-//                        prevalentTable.push_back(newTable);
-//                    }
-//                }
-//            }
-//        }
-//        if(flag == false) break;
-//    }
+    while(1){
+        flag = false;
+        for(int i = 0; i < prevalentTable.size()-1; i++){
+            Table& table1 = prevalentTable[i];
+            for(int j = i+1; j < prevalentTable.size(); j++){
+                Table& table2 = prevalentTable[j];
+                if(*(table1._str.begin()) == *(table2._str.begin())){
+                    Table newTable = mergeTable(table1, table2);
+                    if(checkPrivalent(newTable, pi_threshold)){
+                        flag = true;
+                        ans.push_back(newTable._str);
+                        prevalentTable.push_back(newTable);
+                    }
+                }
+            }
+
+        }
+        if(flag == false) break;
+    }
     return ans;
 }
 
