@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include <QProcess>
+#include <QString>
+#include <QMessageBox>
 using namespace std;
 
 vector< set <string> > algorithm(int timeSpan = 2, double t_threshold = 2, double pi_threshold = 0.5);
@@ -11,6 +14,22 @@ vector<SpatioNode> allInstance; //时空模式专用，保存所有拥堵实例
 vector<Road> allRoad; //时空模式专用，保存所有道路。
 map<string, vector<string>> roadNeighbor ;//存储道路临近关系
 map<SpatioNode*, SpatioNode*> insNeighborMap;
+/*============================= some functions which SPCCP-Miner algotirhm need *=================================================*/
+bool checklegal(){
+    if(inputData.size() == 0) return false;
+    string str1 = inputData[0][0];
+    for(auto c: str1){
+        if(!isalpha(c)){
+            return false;
+        }
+    }
+    string str2 = inputData[inputData.size()-1][0];
+    if(!isdigit(str2[str2.size()-1])){
+        return false;
+    }
+    return true;
+}
+
 bool checkNeighbor(SpatioNode node1, SpatioNode node2, int timeSpan, int t_threshold){
 //    cout << node1.getInsName() << " " << node2.getInsName() << endl;
     string roadName1 = node1.roadName();
@@ -99,16 +118,56 @@ void trim(string& bufStr){    //该函数用于数据清洗时去除前后多余
         bufStr = bufStr.substr(0, loc+1);
     }
 }
+void clearData(){
+    insNeighborMap.clear();
+    roadNeighbor.clear();
+    allRoad.clear();
+    allInstance.clear();
+    ans.clear();
+    featureNum.clear();
+}
+void MainWindow::on_buttonSave_clicked(){
+    QFileDialog dlg(this);
+
+    //获取内容的保存路径
+    QString fileName = dlg.getSaveFileName(this, tr("Save As"), "./", tr("Text File(*.txt)"));
+
+    if( fileName == "" )
+    {
+        return;
+    }
+
+    //内容保存到路径文件
+    QFile file(fileName);
+    //以文本方式打开
+    if( file.open(QIODevice::WriteOnly | QIODevice::Text) )
+    {
+        QTextStream out(&file); //IO设备对象的地址对其进行初始化
+
+        out << ui->textBrowser->toPlainText() << endl; //输出
+
+        QMessageBox::warning(this, tr("Finish"), tr("Successfully save the file!"));
+
+        file.close();
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Error"), tr("File to open file!"));
+    }
+}
+/*================================================================================*/
 
 
-
-
+/*============= the interface of SPCCP-Miner ==============================*/
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    this->setWindowIcon(QIcon(":/../../../Downloads/小车.png"));
+    ui->tabWidget->setCurrentIndex(0);
+//    ui->progressBar->setMinimum(0);
+//    ui->progressBar->setMaximum(100);
+//    ui->progressBar->setValue(0);
     connect(ui->actionopen_2, &QAction::triggered , [=]()->void{
         QString path = QFileDialog::getOpenFileName(this,"open file", "../demo","*.txt");
         QFile file(path);
@@ -139,13 +198,60 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->reset_pushButton, &QPushButton::clicked, [&](){
         ui->textBrowser->clear();
+        ui->textBrowser_2->clear();
+        ui->textEdit->clear();
+        clearData();
+        inputData.clear();
     } );
+
 
     connect(ui->start_pushButton, &QPushButton::clicked, [&](){
         int timeSpan = ui->timeSpanlineEdit->text().toInt();
-        double f_threshold = ui->f_thresholdlineEdit->text().toDouble();
+        //double f_threshold = ui->f_thresholdlineEdit->text().toDouble();
         int t_threshold = ui->t_thresholdlineEdit->text().toInt();
         double pi_threshold = ui->pi_thresholdlineEdit->text().toDouble();
+        if(ui->textBrowser->toPlainText().size() != 0){
+            ui->textBrowser->clear();
+        }
+        if(ui->tabWidget->currentIndex() == 1){
+            clearData();
+            inputData.clear();
+            string str = ui->textEdit->toPlainText().toStdString();
+            vector<string> lineStr;
+            string temp;
+            for(int i = 0; i < str.size(); i++){
+                if(str[i] == '\n' || i == str.size()-1){
+                    if(i == str.size()-1) temp.push_back(str[i]);
+                    lineStr.push_back(temp);
+                    temp.clear();
+                }else{
+                    temp.push_back(str[i]);
+                }
+            }
+            vector<string> tempV;
+            for(int i = 0; i < lineStr.size(); i++){
+                //if(lineStr[i][0] = '\n' || lineStr[i][0] == '/' || lineStr[i][0] == ' ') continue;
+                if(lineStr[i][0] == '/') continue;
+                string tempStr;
+                for(int j = 0; j < lineStr[i].size(); j++){
+                    if(lineStr[i][j] == ' ' || j == lineStr[i].size()-1){
+                        if(j == lineStr[i].size()-1) tempStr.push_back(lineStr[i][j]);
+                        tempV.push_back(tempStr);
+                        tempStr.clear();
+                    }else{
+                        trim(tempStr);
+                        tempStr.push_back(lineStr[i][j]);
+                    }
+                }
+                inputData.push_back(tempV);
+                tempV.clear();
+            }
+        }
+        if(!checklegal()){
+            inputData.clear();
+            QMessageBox::warning(this, tr("Error"), tr("Please input data in the correct format"));
+            return;
+        }
         vector< set<string> > ans = algorithm(timeSpan, t_threshold, pi_threshold);
         QFont fontAns = QFont("Microsoft YaHei",20,2);
         fontAns.setFamily("微软雅黑");//字体
@@ -156,10 +262,41 @@ MainWindow::MainWindow(QWidget *parent)
             for(auto it = ans[i].begin(); it != ans[i].end(); it++){
                 string str = *it;
                 ui->textBrowser->insertPlainText(QString::fromStdString(str));
+                if(it == ans[i].begin()) ui->textBrowser->insertPlainText("->");
+                ui->textBrowser->insertPlainText(" ");
+            }
+            if(ans[i].size() == 2){
+                ui->textBrowser->insertPlainText("🚦");
+            }else{
+                ui->textBrowser->insertPlainText("👮");
             }
             ui->textBrowser->append("");
         }
+        clearData();
     });
+    connect(ui->commandLinkButton, &QCommandLinkButton::clicked, [&](){
+       QProcess::startDetached("explorer https://github.com/miaomiaoCharles/SPCCP-Miner");
+    });
+    connect(ui->actionFile_Mode, &QAction::triggered, [&](){
+        ui->tabWidget->setCurrentIndex(0);
+    });
+    connect(ui->actionsave, &QAction::triggered, [&](){
+        this->on_buttonSave_clicked();
+    });
+    connect(ui->actionWrite_Mode, &QAction::triggered, [&](){
+        ui->tabWidget->setCurrentIndex(1);
+    });
+    connect(ui->actioninstruction, &QAction::triggered, [&](){
+        QProcess::startDetached("explorer https://github.com/miaomiaoCharles/SPCCP-Miner");
+    });
+    connect(ui->save_pushButton, &QPushButton::clicked,[&](){
+        this->on_buttonSave_clicked();
+    });
+//    connect(ui->map_pushButton, &QPushButton::clicked, [&](){
+//        QWebEngineView* view = new QWebEngineView(parentWidget());
+//        view->load(QUrl("D:/Documents/code/demo/BaiDuMap.html")); // D://baidu.html就是自己刚创建的
+//        view->show(); // 显示百度地图
+//    });
 
 }
 
@@ -168,7 +305,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
+/*========================================================================================================================*/
 
 
 /*============================== algorithm of SPCCP========================================================================*/

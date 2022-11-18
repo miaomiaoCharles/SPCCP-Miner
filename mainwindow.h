@@ -24,7 +24,9 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     MainWindow(QWidget *parent = nullptr);
+    void on_buttonSave_clicked();
     ~MainWindow();
+
 private:
     Ui::MainWindow *ui;
 };

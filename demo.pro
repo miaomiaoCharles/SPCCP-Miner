@@ -1,6 +1,4 @@
 QT       += core gui
-QT += webenginewidgets
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -21,16 +19,19 @@ SOURCES += \
     mainwindow.cpp \
     road.cpp \
     spationode.cpp \
+    widget.cpp \
     write.cpp
 
 HEADERS += \
     mainwindow.h \
     road.h \
     spationode.h \
+    widget.h \
     write.h
 
 FORMS += \
     mainwindow.ui \
+    widget.ui \
     write.ui
 
 # Default rules for deployment.
