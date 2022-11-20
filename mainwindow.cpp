@@ -13,7 +13,8 @@ vector<set <string> > ans;
 vector<SpatioNode> allInstance; //时空模式专用，保存所有拥堵实例
 vector<Road> allRoad; //时空模式专用，保存所有道路。
 map<string, vector<string>> roadNeighbor ;//存储道路临近关系
-map<SpatioNode*, SpatioNode*> insNeighborMap;
+//map<SpatioNode*, SpatioNode*> insNeighborMap;
+vector<pair<SpatioNode*, SpatioNode*> > insNeighborMap;
 /*============================= some functions which SPCCP-Miner algotirhm need *=================================================*/
 bool checklegal(){
     if(inputData.size() == 0) return false;
@@ -36,9 +37,9 @@ bool checkNeighbor(SpatioNode node1, SpatioNode node2, int timeSpan, int t_thres
     string roadName2 = node2.roadName();
     auto it = find(roadNeighbor[roadName1].begin(),roadNeighbor[roadName1].end(),roadName2);
     if(it != roadNeighbor[roadName1].end()){
-           if(abs(node1.getTimeSpan()-node2.getTimeSpan()) * timeSpan <= t_threshold){
-                    return true;
-            }
+        if(abs(node1.getTimeSpan()-node2.getTimeSpan()) * timeSpan <= t_threshold){
+            return true;
+         }
     }
     return false;
 }
@@ -344,7 +345,7 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
     for(SpatioNode& insNode1: allInstance){
         for(SpatioNode& insNode2: allInstance){
             if(insNode1.roadName() != insNode2.roadName() && checkNeighbor(insNode1, insNode2, timeSpan, t_threshold)){
-                insNeighborMap.insert({&insNode1, &insNode2});
+                insNeighborMap.push_back({&insNode1, &insNode2});
             }
         }
     }
@@ -357,10 +358,10 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
     }
     map< set<string>, Table> tableMap; //存储对应的表实例
     //先计算2阶的情况
-    for(auto it = insNeighborMap.begin(); it != insNeighborMap.end(); it++){
+    for(int i = 0; i < insNeighborMap.size(); i++){
         set<string> strSet;
-        strSet.insert(it->first->roadName());
-        strSet.insert(it->second->roadName());
+        strSet.insert(insNeighborMap[i].first->roadName());
+        strSet.insert(insNeighborMap[i].second->roadName());
         if(tableMap.find(strSet) == tableMap.end()){
             Table t;
             t._str = strSet;
@@ -368,8 +369,8 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
             tableMap[strSet] = t;
         }
         set<SpatioNode> tempSet;
-        tempSet.insert(*(it->first));
-        tempSet.insert(*(it->second));
+        tempSet.insert(*(insNeighborMap[i].first));
+        tempSet.insert(*(insNeighborMap[i].second));
         tableMap[strSet]._table.push_back(tempSet);
     }
     vector<Table> prevalentTable;
@@ -380,6 +381,12 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
             prevalentTable.push_back(sucessTable);
         }
     }//size-2 complete
+//    for(int i = 0; i < prevalentTable.size(); i++){
+//        for(string str: prevalentTable[i]._str){
+//            cout << str << " ";
+//        }
+//        cout << endl;
+//    }
     bool flag;
     while(1){
         flag = false;
