@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/img"/>
     <qresource prefix="/">
-        <file>../../../Downloads/小车.png</file>
         <file>../../../Downloads/打开.png</file>
     </qresource>
 </RCC>
