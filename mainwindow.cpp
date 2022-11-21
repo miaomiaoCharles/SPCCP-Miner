@@ -61,7 +61,7 @@ bool checkPrivalent(Table t, double piPre){
     }
     double pi = 1.0;
     for(auto it = counter.begin(); it != counter.end(); it++){
-        double pr = it->second.size()/featureNum[it->first];
+        double pr = it->second.size()/(featureNum[it->first]*1.0);
         pi = min(pi, pr);
     }
     if(pi >= piPre){
@@ -266,11 +266,11 @@ MainWindow::MainWindow(QWidget *parent)
                 if(it == ans[i].begin()) ui->textBrowser->insertPlainText("->");
                 ui->textBrowser->insertPlainText(" ");
             }
-            if(ans[i].size() == 2){
-                ui->textBrowser->insertPlainText("🚦");
-            }else{
-                ui->textBrowser->insertPlainText("👮");
-            }
+//            if(ans[i].size() == 2){
+//                ui->textBrowser->insertPlainText("🚦");
+//            }else{
+//                ui->textBrowser->insertPlainText("👮");
+//            }
             ui->textBrowser->append("");
         }
         clearData();
@@ -381,32 +381,26 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
             prevalentTable.push_back(sucessTable);
         }
     }//size-2 complete
-//    for(int i = 0; i < prevalentTable.size(); i++){
-//        for(string str: prevalentTable[i]._str){
-//            cout << str << " ";
-//        }
-//        cout << endl;
-//    }
     bool flag;
-    while(1){
-        flag = false;
-        for(int i = 0; i < prevalentTable.size()-1; i++){
-            Table& table1 = prevalentTable[i];
-            for(int j = i+1; j < prevalentTable.size(); j++){
-                Table& table2 = prevalentTable[j];
-                if(*(table1._str.begin()) == *(table2._str.begin())){
-                    Table newTable = mergeTable(table1, table2);
-                    if(checkPrivalent(newTable, pi_threshold)){
-                        flag = true;
-                        ans.push_back(newTable._str);
-                        prevalentTable.push_back(newTable);
-                    }
-                }
-            }
+//    while(1){
+//        flag = false;
+//        for(int i = 0; i < prevalentTable.size()-1; i++){
+//            Table& table1 = prevalentTable[i];
+//            for(int j = i+1; j < prevalentTable.size(); j++){
+//                Table& table2 = prevalentTable[j];
+//                if(*(table1._str.begin()) == *(table2._str.begin())){
+//                    Table newTable = mergeTable(table1, table2);
+//                    if(checkPrivalent(newTable, pi_threshold)){
+//                        flag = true;
+//                        ans.push_back(newTable._str);
+//                        prevalentTable.push_back(newTable);
+//                    }
+//                }
+//            }
 
-        }
-        if(flag == false) break;
-    }
+//        }
+//        if(flag == false) break;
+//    }
     return ans;
 }
 
