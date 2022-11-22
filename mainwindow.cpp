@@ -30,8 +30,7 @@ bool checklegal(){
     }
     return true;
 }
-
-bool checkNeighbor(SpatioNode node1, SpatioNode node2, int timeSpan, int t_threshold){
+bool checkNeighbor(SpatioNode& node1, SpatioNode& node2, int timeSpan, int t_threshold){
 //    cout << node1.getInsName() << " " << node2.getInsName() << endl;
     string roadName1 = node1.roadName();
     string roadName2 = node2.roadName();
@@ -118,6 +117,10 @@ void trim(string& bufStr){    //该函数用于数据清洗时去除前后多余
     if(loc != -1){
         bufStr = bufStr.substr(0, loc+1);
     }
+    loc = bufStr.find_first_not_of('\n');
+    if(loc != -1){
+        bufStr = bufStr.substr(loc, bufStr.size()-loc);
+    }
 }
 void clearData(){
     insNeighborMap.clear();
@@ -186,8 +189,16 @@ MainWindow::MainWindow(QWidget *parent)
                 words.push_back(p);
                 p = strtok(NULL, " ");
             }
-            inputData.push_back(words);
+            for(string& s: words){
+                trim(s);
+            }
+            inputData.push_back(words);  
             ui->textBrowser_2->setText(arrary);
+        }
+        for(int i = 0; i < inputData.size(); i++){
+            string& s = inputData[i][inputData[i].size()-1];
+            if(isdigit(s[s.size()-1])) continue;
+            s = s.substr(0, s.size()-1);
         }
         file.close();
     });
@@ -231,8 +242,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
             vector<string> tempV;
             for(int i = 0; i < lineStr.size(); i++){
-                //if(lineStr[i][0] = '\n' || lineStr[i][0] == '/' || lineStr[i][0] == ' ') continue;
-                if(lineStr[i][0] == '/') continue;
+                if(lineStr[i][0] == '/' || lineStr[i][0] == ' ') continue;
                 string tempStr;
                 for(int j = 0; j < lineStr[i].size(); j++){
                     if(lineStr[i][j] == ' ' || j == lineStr[i].size()-1){
@@ -313,8 +323,8 @@ MainWindow::~MainWindow()
 vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_threshold){
     int i = 0;
     for(i = 0; i < inputData.size(); i++){
-        if(inputCheck(i)) break;
         trim(inputData[i][0]);
+        if(inputCheck(i)) break;
         Road r(inputData[i][0]);
         if(inputData[i].size() <= 1) roadNeighbor.insert({inputData[i][0], {}});
         for(int j = 1; j < inputData[i].size(); j++){
@@ -330,7 +340,6 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
             allInstance.push_back(SpatioNode(inputData[i][j]));
         }
     }
-
     //将实例放入对应的Road里去
     for(int i = 0; i < allRoad.size(); i++){
         Road& r = allRoad[i];

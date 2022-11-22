@@ -14,7 +14,8 @@ string SpatioNode::roadName()const{
     return _roadName;
 }
 string SpatioNode::getInsName()const{
-    return _roadName + to_string(_timeSpan);
+    string str = _roadName + to_string(_timeSpan);
+    return str;
 }
 int SpatioNode::getTimeSpan()const{
     return _timeSpan;
