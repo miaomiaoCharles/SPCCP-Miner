@@ -84,7 +84,7 @@ Table mergeTable(Table& table1, Table& table2){
         for(int j = 0; j < _table2.size(); j++){
             const SpatioNode& node1 = *(_table1[i].begin());
             const SpatioNode& node2 = *(_table2[j].begin());
-            if(node1 == node2){
+            if(node1.getInsName() == node2.getInsName()){
                 set<SpatioNode> temp = _table1[i];
                 for(auto it = _table2[j].begin(); it != _table2[j].end(); it++){
                     if(it == _table2[j].begin()) continue;
@@ -390,26 +390,24 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
             prevalentTable.push_back(sucessTable);
         }
     }//size-2 complete
-    bool flag;
-//    while(1){
-//        flag = false;
-//        for(int i = 0; i < prevalentTable.size()-1; i++){
-//            Table& table1 = prevalentTable[i];
-//            for(int j = i+1; j < prevalentTable.size(); j++){
-//                Table& table2 = prevalentTable[j];
-//                if(*(table1._str.begin()) == *(table2._str.begin())){
-//                    Table newTable = mergeTable(table1, table2);
-//                    if(checkPrivalent(newTable, pi_threshold)){
-//                        flag = true;
-//                        ans.push_back(newTable._str);
-//                        prevalentTable.push_back(newTable);
-//                    }
-//                }
-//            }
-
-//        }
-//        if(flag == false) break;
-//    }
+    int k = 2;
+    for( ; prevalentTable.size() > 2; k++){
+        vector<Table> newPrevalentTable;
+        for(int i = 0; i < prevalentTable.size()-1; i++){
+            Table& table1 = prevalentTable[i];
+            for(int j = i+1; j < prevalentTable.size(); j++){
+                Table& table2 = prevalentTable[j];
+                if(*(table1._str.begin()) == *(table2._str.begin())){
+                    Table newTable = mergeTable(table1, table2);
+                    if(checkPrivalent(newTable, pi_threshold)){
+                        ans.push_back(newTable._str);
+                        newPrevalentTable.push_back(newTable);
+                    }
+                }
+            }
+        }
+        prevalentTable = newPrevalentTable;
+    }
     return ans;
 }
 
