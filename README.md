@@ -1,4 +1,4 @@
-# Demo
+# SPCCP-Miner
 
 ## Introduction
 
