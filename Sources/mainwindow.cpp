@@ -16,6 +16,7 @@ map<string, vector<string>> roadNeighbor ;//存储道路临近关系
 //map<SpatioNode*, SpatioNode*> insNeighborMap;
 vector<pair<SpatioNode*, SpatioNode*> > insNeighborMap;
 /*============================= some functions which SPCCP-Miner algotirhm need *=================================================*/
+// to check the data which user upload whether legal.
 bool checklegal(){
     if(inputData.size() == 0) return false;
     string str1 = inputData[0][0];
@@ -30,6 +31,21 @@ bool checklegal(){
     }
     return true;
 }
+//pourn low-size SPCCPs if these SPCCPs are subset of new SPCCP
+void pournLowSizeSPCCP(const set<string>& strs){
+    auto it = ans.begin();
+    while(it != ans.end()){
+        set<string> unionSet;
+        set<string>& temp = *it;
+        set_union(temp.begin(), temp.end(), strs.begin(), strs.end(), inserter(unionSet, unionSet.begin()));
+        if(unionSet == strs){
+            it = ans.erase(it);
+        }else{
+            ++it;
+        }
+    }
+}
+//Check whether two instances satisfy the neighbor relationship
 bool checkNeighbor(SpatioNode& node1, SpatioNode& node2, int timeSpan, int t_threshold){
 //    cout << node1.getInsName() << " " << node2.getInsName() << endl;
     string roadName1 = node1.roadName();
@@ -42,13 +58,14 @@ bool checkNeighbor(SpatioNode& node1, SpatioNode& node2, int timeSpan, int t_thr
     }
     return false;
 }
+// a Table instance, join-based algorithm need.
 struct Table
 {
     int _size;
     set<string> _str;
     vector<set<SpatioNode > > _table;
 };
-
+//check a candidate SPCCP whether prevalent or not
 bool checkPrivalent(Table t, double piPre){
     // map<string, int> counter;
     map<string, set<string> > counter;
@@ -69,6 +86,7 @@ bool checkPrivalent(Table t, double piPre){
         return false;
     }
 }
+//merge two table
 Table mergeTable(Table& table1, Table& table2){
     Table newTable;
     set<string> newSet(table1._str);
@@ -96,6 +114,7 @@ Table mergeTable(Table& table1, Table& table2){
     }
     return newTable;
 }
+//Check if the input to the congestion instance
 bool inputCheck(int i){
     int size = inputData[i][0].size();
     if(isdigit(inputData[i][0][size - 1])){
@@ -122,6 +141,7 @@ void trim(string& bufStr){    //该函数用于数据清洗时去除前后多余
         bufStr = bufStr.substr(loc, bufStr.size()-loc);
     }
 }
+//clear all container
 void clearData(){
     insNeighborMap.clear();
     roadNeighbor.clear();
@@ -130,6 +150,7 @@ void clearData(){
     ans.clear();
     featureNum.clear();
 }
+//open a messagebox
 void MainWindow::on_buttonSave_clicked(){
     QFileDialog dlg(this);
 
@@ -150,7 +171,7 @@ void MainWindow::on_buttonSave_clicked(){
 
         out << ui->textBrowser->toPlainText() << endl; //输出
 
-        QMessageBox::warning(this, tr("Finish"), tr("Successfully save the file!"));
+        QMessageBox::information(this, tr("Finish"), tr("Successfully save the file!"));
 
         file.close();
     }
@@ -288,6 +309,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->commandLinkButton, &QCommandLinkButton::clicked, [&](){
        QProcess::startDetached("explorer https://github.com/miaomiaoCharles/SPCCP-Miner");
     });
+    connect(ui->commandLinkButton_2, &QCommandLinkButton::clicked, [&](){
+       QProcess::startDetached("explorer https://youtu.be/1RuCg0LegbM");
+    });
     connect(ui->actionFile_Mode, &QAction::triggered, [&](){
         ui->tabWidget->setCurrentIndex(0);
     });
@@ -299,6 +323,9 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(ui->actioninstruction, &QAction::triggered, [&](){
         QProcess::startDetached("explorer https://github.com/miaomiaoCharles/SPCCP-Miner");
+    });
+    connect(ui->actionhelp_video, &QAction::triggered, [&](){
+        QProcess::startDetached("explorer https://youtu.be/1RuCg0LegbM");
     });
     connect(ui->save_pushButton, &QPushButton::clicked,[&](){
         this->on_buttonSave_clicked();
@@ -400,6 +427,7 @@ vector< set <string> > algorithm(int timeSpan, double t_threshold, double pi_thr
                 if(*(table1._str.begin()) == *(table2._str.begin())){
                     Table newTable = mergeTable(table1, table2);
                     if(checkPrivalent(newTable, pi_threshold)){
+                        pournLowSizeSPCCP(newTable._str);
                         ans.push_back(newTable._str);
                         newPrevalentTable.push_back(newTable);
                     }
