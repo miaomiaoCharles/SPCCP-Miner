@@ -2,9 +2,9 @@
 
 ## Introduction
 
-An interactive system to mine the congested road junctions, named SPCCP-Miner. This system include data layer, algorithm layer, and display layer. These layers are mainly implemented in /Source/mainwindow.cpp. All source code was divided into the following folders:
+SPCCP-Miner is an interactive system to mine the congested roadjunctions. This system include data layer, algorithm layer, and display layer. These layers are mainly implemented in /Source/mainwindow.cpp. All source codes was divided into the following folders:
 
-- **./Headers:** the header file of SPCCP-Miner, these files stores all predefined functions.
+- **./Headers:** the header file of SPCCP-Miner, these files are used to store all predefined functions.
 - **./Sources:** the most important files in this system, all functions are implemented in this folder.
 - **./Forms:** The interface design scheme of the system and  icons are stored in this folder.
 - **./Datas:** Some of the data files for testing are stored in this folder.
@@ -21,7 +21,7 @@ We can click the top right corner of the code->download ZIP to download the zip 
 
 Whether the user inputs the data themselves or reads it from . /data folder, the data should follow the following format:
 
-First, the first few rows show the neighbor relationship between roads. We indicate the road name in the first position of each row, followed by the neighboring road of that road. For example, this row indicate that the road of A has two neighbor roads: C and I. 
+To begin with, the first few rows show the neighbor relationship between roads. We indicate the road name in the first position of each row, followed by the neighboring road of that road. For example, this row indicate that the road of A has two neighbor roads: C and I. 
 
 ```cpp
 A C I    
