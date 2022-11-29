@@ -2,7 +2,7 @@
 
 ## Introduction
 
-SPCCP-Miner is an interactive system to mine the congested roadjunctions. This system include data layer, algorithm layer, and display layer. These layers are mainly implemented in /Source/mainwindow.cpp. All source codes was divided into the following folders:
+SPCCP-Miner is an interactive system to mine the congested roadjunctions. This system include data layer, algorithm layer, and display layer. **These layers are mainly implemented in /Source/mainwindow.cpp.** All source codes was divided into the following folders:
 
 - **./Headers:** the header file of SPCCP-Miner, these files are used to store all predefined functions.
 - **./Sources:** the most important files in this system, all functions are implemented in this folder.
