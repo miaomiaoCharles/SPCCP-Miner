@@ -15,7 +15,7 @@ SPCCP-Miner is an interactive system to mine the congested road junctions. This 
 
 - how to download the SPCCP-Miner from this web.
 
-We can click the top right corner of the code->download ZIP to download the zip package, unzip it and **open SPCCP-Miner.exe to start this system**.
+We can click the top right corner of the code->download ZIP to download the zip package, unzip it and **open demo.exe to start this system**.
 
 - The data format in SPCCP-Miner:
 
