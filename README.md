@@ -9,7 +9,7 @@ SPCCP-Miner is an interactive system to mine the congested road junctions. This 
 - **./Forms:** The interface design scheme of the system and  icons are stored in this folder.
 - **./Datas:** Some of the data files for testing are stored in this folder.
 - **./Proj:** Some project configuration files.
-- **SPCCP-Miner.exe:** The executable program, users can open it to start SPCCP-Miner.
+- **demo.exe:** The executable program, users can open it to start SPCCP-Miner.
 
 ## Usage
 
